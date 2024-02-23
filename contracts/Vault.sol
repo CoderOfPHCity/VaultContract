@@ -2,8 +2,8 @@
 pragma solidity ^0.8;
 
 contract Vault {
-
     error ONLY_OWNER();
+    error ZERO_ADDRESS();
 
     mapping(address => mapping(address => uint256)) balances;
     uint256 duration = 1 minutes;
@@ -11,19 +11,23 @@ contract Vault {
 
     function donate() external payable {
         require(msg.value > 0, "Amount must be positive");
-        require(msg.sender != address(0), "invalid!");
+        if (msg.sender == address(0)) {
+            revert ZERO_ADDRESS();
+        }
         balances[msg.sender][address(this)] += msg.value;
     }
 
     function onlyOwner() private view {
-        if (owner == msg.sender) {
+        if (owner != msg.sender) {
             revert ONLY_OWNER();
         }
     }
 
     function addBeneficiary(address _beneficiary) external {
         onlyOwner();
-        require(_beneficiary != address(0), "Invalid beneficiary");
+        if (_beneficiary == address(0)) {
+            revert ZERO_ADDRESS();
+        }
         balances[_beneficiary][address(this)] = 0;
     }
 
@@ -44,3 +48,5 @@ contract Vault {
         payable(msg.sender).transfer(amount);
     }
 }
+
+
