@@ -48,5 +48,3 @@ contract Vault {
         payable(msg.sender).transfer(amount);
     }
 }
-
-
